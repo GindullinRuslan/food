@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modal = document.querySelector('.modal'),
     modalClose = document.querySelector('[data-close]');
 
-    // функция открытия модального окна
+  // функция открытия модального окна
   function openModal() {
     modal.classList.add('show');
     modalClose.classList.remove('hide');
@@ -138,9 +138,13 @@ document.addEventListener('DOMContentLoaded', () => {
   //открытие модального окна через 3 секунды
   const modalTimer = setTimeout(openModal, 3000);
 
+  function showModalByScroll() {
+    if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+      openModal();
+      window.removeEventListener('scroll', showModalByScroll)
+    }
+  }
 
-  window.addEventListener('scroll', () => {
-    if (window.pageYOffset + document.documentElement.clientHeight >= document.scrollingElement.scroll)
-  });
+  window.addEventListener('scroll', showModalByScroll);
 
 });
