@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showModalByScroll() {
     if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
       openModal();
-      window.removeEventListener('scroll', showModalByScroll)
+      window.removeEventListener('scroll', showModalByScroll);
     }
   }
 
@@ -222,43 +222,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Forms
 
-  const forms = document.querySelectorAll('form');
+  const forms = document.querySelectorAll('form'); // поулчение всех форм со страницы
 
-  const message = {
+  const message = { // текстовые сообщения что что-то произошло
     loading: 'Загрузка',
     success: 'Cпасибо, скоро мы с вами свяжемся',
     failure: 'Что-то пошло не так...'
   };
 
-  forms.forEach(item => {
+  forms.forEach(item => { // под каждую форму подвязываем функцию отправки
     postData(item);
   });
 
-  function postData(form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDeafault();
+  function postData(form) { // функция постинга данных
+    form.addEventListener('submit', (e) => { // обработчик события 
+      e.preventDefault(); // отменяем стандартное поведение браузера (перезагрузка страницы при отправке данных формы)
 
-      const statusMessage = document.createElement('div');
+      const statusMessage = document.createElement('div'); // создаем элемент в котором показыватся статус 
       statusMessage.classList.add('status');
       statusMessage.textContent = message.loading;
       form.append(statusMessage); 
 
       const request = new XMLHttpRequest();
-      request.open('POST', 'server.php');
+      request.open('POST', 'server.php'); // методо для настройки запроса
 
-      // request.setRequestHeader('Content-type', 'multipart/form-data');
-      const formData = new FormData(form);
+      // request.setRequestHeader('Content-type', 'multipart/form-data'); // заголовки которые говорят что конкретно приходит с сервера
+      const formData = new FormData(form); // объект который позволяет с определенной формы сформировать данные которые заполнил пользователь
 
-      request.send(formData);
+      request.send(formData); // метод отправки данных (body - formData)
 
-      request.addEventListener('load', () => {
+      request.addEventListener('load', () => { 
         if (request.status === 200) {
           console.log(request.response);
           statusMessage.textContent = message.success;
+          form.reset(); // сброс формы после отправки
+          setTimeout(() => { // через 2 секунды удалить сообщение спасибо мы скоро с вами свяжемся
+            statusMessage.remove();
+          }, 2000);
         } else {
           statusMessage.textContent = message.failure;
         }
-      })
+      });
     });
   }
+
 });
