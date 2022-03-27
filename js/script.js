@@ -246,10 +246,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const request = new XMLHttpRequest();
       request.open('POST', 'server.php'); // методо для настройки запроса
 
-      // request.setRequestHeader('Content-type', 'multipart/form-data'); // заголовки которые говорят что конкретно приходит с сервера
+      request.setRequestHeader('Content-type', 'application/json'); // заголовки которые говорят что конкретно приходит с сервера
       const formData = new FormData(form); // объект который позволяет с определенной формы сформировать данные которые заполнил пользователь
 
-      request.send(formData); // метод отправки данных (body - formData)
+      const object = {};
+
+      formData.forEach(function(value, key) {
+        object[key] = value;
+      });
+
+      const json = JSON.stringify(object)
+
+      request.send(json); // метод отправки данных (body - formData)
 
       request.addEventListener('load', () => { 
         if (request.status === 200) {
