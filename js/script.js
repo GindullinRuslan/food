@@ -243,10 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       form.insertAdjacentElement('afterend', statusMessage);
 
-      const request = new XMLHttpRequest();
-      request.open('POST', 'server.php'); // метод для настройки запроса
 
-      request.setRequestHeader('Content-type', 'application/json'); // заголовки которые говорят что конкретно приходит с сервера
+
       const formData = new FormData(form); // объект который позволяет с определенной формы сформировать данные которые заполнил пользователь
 
       const object = {};
@@ -255,19 +253,22 @@ document.addEventListener('DOMContentLoaded', () => {
         object[key] = value;
       });
 
-      const json = JSON.stringify(object);
-
-      request.send(json); // метод отправки данных (body - formData)
-
-      request.addEventListener('load', () => { 
-        if (request.status === 200) {
-          console.log(request.response);
-          showThanksModal(message.success);
-          form.reset(); // сброс формы после отправки
-            statusMessage.remove();
-        } else {
-          showThanksModal(message.failure);
-        }
+      fetch('server1.php', {
+        method: "POST",
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(object)
+      }).then(data => data.text())
+      .then(data => {
+        console.log(data);
+        showThanksModal(message.success);
+        form.reset(); // сброс формы после отправки
+        statusMessage.remove();
+      }).catch(() => {
+        showThanksModal(message.failure);
+      }).finally(() => {
+        form.reset();
       });
     });
   }
@@ -291,11 +292,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelector('.modal').append(thanksModal);
     setTimeout(() => {
-      thanksModal.remove();    
+      thanksModal.remove();
       prevModalDialog.classList.add('show');
       prevModalDialog.classList.remove('hide');
       closeModal();
     }, 4000);
   }
-
 });
