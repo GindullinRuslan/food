@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-      // метод entries берет каждые свойства и формирует массив который состоит их значени ключей и значений через запятую, Например есть объект {a:23, b:50}; применим к объекту свйоство entries. Чтобы сделать обратное действие тоесть превратить массив в массиве есть метод gromEntries
+      // метод entries берет каждые свойства и формирует массив который состоит их значени ключей и значений через запятую, Например есть объект {a:23, b:50}; применим к объекту свйоство entries. Чтобы сделать обратное действие тоесть превратить массив в массиве есть метод fromEntries
 
       postData('http://localhost:3000/requests', json)
       .then(data => {
@@ -364,4 +364,69 @@ document.addEventListener('DOMContentLoaded', () => {
   fetch('http://localhost:3000/menu')
     .then(data => data.json())
     .then(res => console.log(res));
+
+
+
+
+
+
+
+  // Slider
+
+  const slides = document.querySelectorAll('.offer__slide'),
+    prev = document.querySelector('.offer__slider-prev'),
+    next = document.querySelector('.offer__slider-next'),
+    total = document.querySelector('#total'),
+    current = document.querySelector('#current');
+
+  let slideIndex = 1;
+
+  showSlides(slideIndex);
+
+  if (slides.length < 10) {
+    total.textContent = `0${slides.length}`;
+  } else {
+    total.textContent = slides.length;
+  }
+
+  function showSlides(n) {
+    if (n > slides.length) {
+      slideIndex = 1;
+    }
+
+    if (n < 1) {
+      slideIndex = slides.length;
+    }
+
+    slides.forEach(item => {
+      item.style.display = 'none';
+    });
+
+    slides[slideIndex - 1].style.display = 'block';
+
+    if (slides.length < 10) {
+      current.textContent = `0${slideIndex}`;
+    } else {
+      current.textContent = slideIndex;
+    }
+  }
+
+  function plusSlides(n) {
+    showSlides(slideIndex += n);
+  }
+
+  prev.addEventListener('click', () => {
+    plusSlides(-1);
+  });
+
+  next.addEventListener('click', () => {
+    plusSlides(+1);
+  });
+  
 });
+
+
+
+
+
+
