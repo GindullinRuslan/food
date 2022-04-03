@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+
+
+
+
   // Tabs
   const tabs = document.querySelectorAll('.tabheader__item'),
     tabsContent = document.querySelectorAll('.tabcontent'),
@@ -35,6 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+
+
+
+
+
+
 
   // Timer
 
@@ -90,6 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setClock('.timer', deadline);
 
+
+
+
+
+
+
+
   // Modal
 
 
@@ -143,6 +161,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', showModalByScroll);
 
+
+
+
+
+
+
   // Используем классы для карточек
 
   class MenuCard {
@@ -186,34 +210,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  new MenuCard(
-    "img/tabs/vegy.jpg",
-    "vegy",
-    'Меню "Фитнес"',
-    'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-    9,
-    '.menu .container',
-  ).render();
+  const getResource = async (url) => {
+    const res = await fetch(url);
+
+    // фетч если столкнется с какйо нибудь ошиюкой в http  запросе (404,500,502) он нам не выдаст catch(reject) - это не будет для него ошибкой, а ошибка для него - это отсутствие интернета, неполадки в самом запросе, поэтому такое поведение мы должны обработать. И здесь мы используем два метода ok и status. throw используется чтобы выкинуть эту ошибку из функции. 
+    if(!res.ok) {
+      throw new Error(`Could nod fetch ${url}, status: ${res.status}`);
+    }
+
+    return await res.json();
+    };
 
 
-  new MenuCard(
-    "img/tabs/elite.jpg",
-    "elite",
-    'Меню “Премиум”',
-    'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-    50,
-    '.menu .container',
-  ).render();
+  getResource('http://localhost:3000/menu')
+  .then(data => {
+    data.forEach(({img, altimg, title, descr, price}) => {
+      new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    });
+  });
+
+// Способ создания кароточек (создается функция createCard получает data начинает ее перебирать через forEach, деструктуризирует наши объекты на отдельные свойства, создает новый див помещает в него новый класс, формирует верстку, и апендит каротчку в какой то элемент верстки на странице)
 
 
-  new MenuCard(
-    "img/tabs/post.jpg",
-    "post",
-    'Меню "Постное"',
-    'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-    30,
-    '.menu .container',
-  ).render();
+  // getResource('http://localhost:3000/menu')
+  // .then(data => createCard(data));
+
+  // function createCard(data) {
+  //   data.forEach(({img, altimg, title, descr, price}) => {
+  //     const element = document.createElement('div');
+
+  //     element.classList.add('menu__item');
+
+  //     element.innerHTML = `
+  //               <img src=${img} alt=${altimg}>
+  //         <h3 class="menu__item-subtitle">${title}</h3>
+  //         <div class="menu__item-descr">${descr}</div>
+  //         <div class="menu__item-divider"></div>
+  //         <div class="menu__item-price">
+  //           <div class="menu__item-cost">Цена:</div>
+  //           <div class="menu__item-total"><span>${price}</span> грн/день</div>
+  //         </div>
+  //     `;
+
+  //     document.querySelector('.menu .container').append(element);
+  //   });
+  // }
+
+
+
+
+
+
+
 
 
   // Forms
@@ -227,10 +275,25 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   forms.forEach(item => { // под каждую форму подвязываем функцию отправки
-    postData(item);
+    bindPostData(item);
   });
 
-  function postData(form) { // функция постинга данных
+  const postData = async (url, data) => { // функция настраивает наш запрос, она фетчит - посылает запрос на сервер, получает какой то ответ от сервера и после этого трансформирует в джсон
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: data
+    });
+
+    return await res.json(); //мы с постадаты возвращаем промис и через цепочку then обработаем
+    
+  };
+
+  // создается запрос который уходит на сервер( при это м это абсолютно асинхронный код, мф не знаем через сколько нам вернется ответ от сервера и так как это асинхронный код он не ждет другой код). Тоесть мы запустили запрос fetch, а код наш внутри функции начинает работать дальше (сonst = res), и фетча нам еще ничего не вернулось, там есть лишь обещание и соотвественно дальше у нас будет ошибка, тк обещание мы попытаемся обработать через джсон, а такого метода у промиса не будет. Поэтому нужно испаользовать механизм который превращает асинхронный код в синхронный. Для решения этой проблемы есть async/await. async -ставится перед функцией, await - ставится перед операциями которые мы хотим дождаться. Эти операторы всегда ставятся в паре. Это работает следующим образом - коода запускается функция postData, начинается запрос на сервер\. но за счет опператора await JS начинает ждать рездльутата этого запроса. Далее в res поместиться какой то результат и дальше уже можно с ним работать.
+
+  function bindPostData(form) { // функция постинга данных
     form.addEventListener('submit', (e) => { // обработчик события 
       e.preventDefault(); // отменяем стандартное поведение браузера (перезагрузка страницы при отправке данных формы)
 
@@ -243,23 +306,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       form.insertAdjacentElement('afterend', statusMessage);
 
-
-
       const formData = new FormData(form); // объект который позволяет с определенной формы сформировать данные которые заполнил пользователь
 
-      const object = {};
+      const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-      formData.forEach(function(value, key) {
-        object[key] = value;
-      });
+      // метод entries берет каждые свойства и формирует массив который состоит их значени ключей и значений через запятую, Например есть объект {a:23, b:50}; применим к объекту свйоство entries. Чтобы сделать обратное действие тоесть превратить массив в массиве есть метод gromEntries
 
-      fetch('server1.php', {
-        method: "POST",
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify(object)
-      }).then(data => data.text())
+      postData('http://localhost:3000/requests', json)
       .then(data => {
         console.log(data);
         showThanksModal(message.success);
@@ -272,6 +325,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+
+
+
+
+
+
+
+
 
   //наводим красоту форме отправки
 
@@ -298,4 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal();
     }, 4000);
   }
+
+  fetch('http://localhost:3000/menu')
+    .then(data => data.json())
+    .then(res => console.log(res));
 });
