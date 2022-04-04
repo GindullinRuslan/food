@@ -214,22 +214,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const res = await fetch(url);
 
     // фетч если столкнется с какйо нибудь ошиюкой в http  запросе (404,500,502) он нам не выдаст catch(reject) - это не будет для него ошибкой, а ошибка для него - это отсутствие интернета, неполадки в самом запросе, поэтому такое поведение мы должны обработать. И здесь мы используем два метода ok и status. throw используется чтобы выкинуть эту ошибку из функции. 
-    if(!res.ok) {
+    if (!res.ok) {
       throw new Error(`Could nod fetch ${url}, status: ${res.status}`);
     }
 
     return await res.json();
-    };
+  };
 
 
   getResource('http://localhost:3000/menu')
-  .then(data => {
-    data.forEach(({img, altimg, title, descr, price}) => {
-      new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    .then(data => {
+      data.forEach(({ img, altimg, title, descr, price }) => {
+        new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+      });
     });
-  });
 
-// Способ создания кароточек (создается функция createCard получает data начинает ее перебирать через forEach, деструктуризирует наши объекты на отдельные свойства, создает новый див помещает в него новый класс, формирует верстку, и апендит каротчку в какой то элемент верстки на странице)
+  // Способ создания кароточек (создается функция createCard получает data начинает ее перебирать через forEach, деструктуризирует наши объекты на отдельные свойства, создает новый див помещает в него новый класс, формирует верстку, и апендит каротчку в какой то элемент верстки на странице)
 
 
   // getResource('http://localhost:3000/menu')
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     return await res.json(); //мы с постадаты возвращаем промис и через цепочку then обработаем
-    
+
   };
 
   // создается запрос который уходит на сервер( при это м это абсолютно асинхронный код, мф не знаем через сколько нам вернется ответ от сервера и так как это асинхронный код он не ждет другой код). Тоесть мы запустили запрос fetch, а код наш внутри функции начинает работать дальше (сonst = res), и фетча нам еще ничего не вернулось, там есть лишь обещание и соотвественно дальше у нас будет ошибка, тк обещание мы попытаемся обработать через джсон, а такого метода у промиса не будет. Поэтому нужно испаользовать механизм который превращает асинхронный код в синхронный. Для решения этой проблемы есть async/await. async -ставится перед функцией, await - ставится перед операциями которые мы хотим дождаться. Эти операторы всегда ставятся в паре. Это работает следующим образом - коода запускается функция postData, начинается запрос на сервер\. но за счет опператора await JS начинает ждать рездльутата этого запроса. Далее в res поместиться какой то результат и дальше уже можно с ним работать.
@@ -313,16 +313,16 @@ document.addEventListener('DOMContentLoaded', () => {
       // метод entries берет каждые свойства и формирует массив который состоит их значени ключей и значений через запятую, Например есть объект {a:23, b:50}; применим к объекту свйоство entries. Чтобы сделать обратное действие тоесть превратить массив в массиве есть метод fromEntries
 
       postData('http://localhost:3000/requests', json)
-      .then(data => {
-        console.log(data);
-        showThanksModal(message.success);
-        form.reset(); // сброс формы после отправки
-        statusMessage.remove();
-      }).catch(() => {
-        showThanksModal(message.failure);
-      }).finally(() => {
-        form.reset();
-      });
+        .then(data => {
+          console.log(data);
+          showThanksModal(message.success);
+          form.reset(); // сброс формы после отправки
+          statusMessage.remove();
+        }).catch(() => {
+          showThanksModal(message.failure);
+        }).finally(() => {
+          form.reset();
+        });
     });
   }
 
@@ -371,61 +371,143 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // Slider
+  // Slider 1
+
+  // const slides = document.querySelectorAll('.offer__slide'),
+  //   prev = document.querySelector('.offer__slider-prev'),
+  //   next = document.querySelector('.offer__slider-next'),
+  //   total = document.querySelector('#total'),
+  //   current = document.querySelector('#current');
+
+  // let slideIndex = 1;
+
+  // showSlides(slideIndex);
+
+  // if (slides.length < 10) {
+  //   total.textContent = `0${slides.length}`;
+  // } else {
+  //   total.textContent = slides.length;
+  // }
+
+  // function showSlides(n) {
+  //   if (n > slides.length) {
+  //     slideIndex = 1;
+  //   }
+
+  //   if (n < 1) {
+  //     slideIndex = slides.length;
+  //   }
+
+  //   slides.forEach(item => {
+  //     item.style.display = 'none';
+  //   });
+
+  //   slides[slideIndex - 1].style.display = 'block';
+
+  //   if (slides.length < 10) {
+  //     current.textContent = `0${slideIndex}`;
+  //   } else {
+  //     current.textContent = slideIndex;
+  //   }
+  // }
+
+  // function plusSlides(n) {
+  //   showSlides(slideIndex += n);
+  // }
+
+  // prev.addEventListener('click', () => {
+  //   plusSlides(-1);
+  // });
+
+  // next.addEventListener('click', () => {
+  //   plusSlides(+1);
+  // });
+
+
+
+
+
+  // Slider 2
 
   const slides = document.querySelectorAll('.offer__slide'),
     prev = document.querySelector('.offer__slider-prev'),
     next = document.querySelector('.offer__slider-next'),
     total = document.querySelector('#total'),
-    current = document.querySelector('#current');
+    current = document.querySelector('#current'),
+    slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+    slidesField = document.querySelector('.offer__slider-inner'),
+    width = window.getComputedStyle(slidesWrapper).width;
 
   let slideIndex = 1;
-
-  showSlides(slideIndex);
+  let offset = 0;
 
   if (slides.length < 10) {
     total.textContent = `0${slides.length}`;
+    current.textContent = `0${slideIndex}`;
   } else {
     total.textContent = slides.length;
+    current.textContent = slideIndex;
+
   }
 
-  function showSlides(n) {
-    if (n > slides.length) {
+  slidesField.style.width = 100 * slides.length + '%';
+  slidesField.style.display = 'flex';
+  slidesField.style.transition = '0.5s all';
+
+  slidesWrapper.style.overflow = 'hidden';
+
+  slides.forEach(slide => {
+    slide.style.width = width;
+  });
+
+  next.addEventListener('click', () => {
+    if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) {
+      offset = 0;
+    } else {
+      offset += +width.slice(0, width.length - 2);
+    }
+
+    slidesField.style.transform = `translateX(-${offset}px)`;
+
+    if (slideIndex == slides.length) {
       slideIndex = 1;
+    } else {
+      slideIndex++;
     }
-
-    if (n < 1) {
-      slideIndex = slides.length;
-    }
-
-    slides.forEach(item => {
-      item.style.display = 'none';
-    });
-
-    slides[slideIndex - 1].style.display = 'block';
 
     if (slides.length < 10) {
       current.textContent = `0${slideIndex}`;
     } else {
       current.textContent = slideIndex;
     }
-  }
-
-  function plusSlides(n) {
-    showSlides(slideIndex += n);
-  }
+  });
 
   prev.addEventListener('click', () => {
-    plusSlides(-1);
+
+    if (offset == 0) {
+      offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+    } else {
+      offset -= +width.slice(0, width.length - 2);
+    }
+
+    slidesField.style.transform = `translateX(-${offset}px)`;
+
+    if (slideIndex == 1) {
+      slideIndex = slides.length;
+    } else {
+      slideIndex--;
+    }
+
+    if (slides.length < 10) {
+      current.textContent = `0${slideIndex}`;
+    } else {
+      current.textContent = slideIndex;
+    }
   });
 
-  next.addEventListener('click', () => {
-    plusSlides(+1);
-  });
-  
+
+
 });
-
-
 
 
 
