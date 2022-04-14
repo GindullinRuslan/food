@@ -1,3 +1,5 @@
+import {getResource} from '../services/services';
+
 function cards() {
   // Используем классы для карточек
 
@@ -42,16 +44,7 @@ function cards() {
     }
   }
 
-  const getResource = async (url) => {
-    const res = await fetch(url);
 
-    // фетч если столкнется с какйо нибудь ошиюкой в http  запросе (404,500,502) он нам не выдаст catch(reject) - это не будет для него ошибкой, а ошибка для него - это отсутствие интернета, неполадки в самом запросе, поэтому такое поведение мы должны обработать. И здесь мы используем два метода ok и status. throw используется чтобы выкинуть эту ошибку из функции. 
-    if (!res.ok) {
-      throw new Error(`Could nod fetch ${url}, status: ${res.status}`);
-    }
-
-    return await res.json();
-  };
 
 
   getResource('http://localhost:3000/menu')
@@ -89,4 +82,4 @@ function cards() {
   // }
 }
 
-module.exports = cards;
+export default cards;

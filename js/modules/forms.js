@@ -1,7 +1,11 @@
-function forms() {
+import {closeModal, openModal} from './modal';
+
+import {postData} from '../services/services';
+
+function forms(formSelector, modalTimer) {
   // Forms
 
-  const forms = document.querySelectorAll('form'); // поулчение всех форм со страницы
+  const forms = document.querySelectorAll(formSelector); // поулчение всех форм со страницы
 
   const message = { // текстовые сообщения что что-то произошло
     loading: 'img/form/spinner.svg',
@@ -13,18 +17,7 @@ function forms() {
     bindPostData(item);
   });
 
-  const postData = async (url, data) => { // функция настраивает наш запрос, она фетчит - посылает запрос на сервер, получает какой то ответ от сервера и после этого трансформирует в джсон
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: data
-    });
 
-    return await res.json(); //мы с постадаты возвращаем промис и через цепочку then обработаем
-
-  };
 
   // создается запрос который уходит на сервер( при это м это абсолютно асинхронный код, мф не знаем через сколько нам вернется ответ от сервера и так как это асинхронный код он не ждет другой код). Тоесть мы запустили запрос fetch, а код наш внутри функции начинает работать дальше (сonst = res), и фетча нам еще ничего не вернулось, там есть лишь обещание и соотвественно дальше у нас будет ошибка, тк обещание мы попытаемся обработать через джсон, а такого метода у промиса не будет. Поэтому нужно испаользовать механизм который превращает асинхронный код в синхронный. Для решения этой проблемы есть async/await. async -ставится перед функцией, await - ставится перед операциями которые мы хотим дождаться. Эти операторы всегда ставятся в паре. Это работает следующим образом - коода запускается функция postData, начинается запрос на сервер\. но за счет опператора await JS начинает ждать рездльутата этого запроса. Далее в res поместиться какой то результат и дальше уже можно с ним работать.
 
@@ -61,22 +54,13 @@ function forms() {
     });
   }
 
-
-
-
-
-
-
-
-
-
   //наводим красоту форме отправки
 
   function showThanksModal(message) {
     const prevModalDialog = document.querySelector('.modal__dialog');
 
     prevModalDialog.classList.add('hide');
-    openModal();
+    openModal('.modal', modalTimer);
 
     const thanksModal = document.createElement('div');
     thanksModal.classList.add('modal__dialog');
@@ -92,7 +76,7 @@ function forms() {
       thanksModal.remove();
       prevModalDialog.classList.add('show');
       prevModalDialog.classList.remove('hide');
-      closeModal();
+      closeModal('.modal');
     }, 4000);
   }
 
@@ -102,4 +86,4 @@ function forms() {
 
 }
 
-module.exports = forms;
+export default forms;
